@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marvel_flutter_app/bloc/marvel_bloc.dart';
 import 'package:marvel_flutter_app/model/marvel_model.dart';
+import 'package:marvel_flutter_app/ui/marvel_detail_ui.dart';
 
 class MarvelListUI extends StatefulWidget {
   @override
@@ -51,6 +52,8 @@ class _MarvelListUIState extends State<MarvelListUI> {
         padding: EdgeInsets.all(15),
         itemBuilder: (context, position) {
           var name = results[position].name;
+          var description = results[position].description;
+
           var imageName = results[position].thumbnail.path;
           var imageExtension = results[position].thumbnail.extension;
 
@@ -62,15 +65,19 @@ class _MarvelListUIState extends State<MarvelListUI> {
                   "$name",
                   style: TextStyle(fontSize: 20, color: Colors.lightBlueAccent),
                 ),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(50.0),
-                  child: Image.network(
-                    "$imageName.$imageExtension",
-                    width: 48,
-                    height: 48,
+                leading: Hero(
+                  tag: "$name",
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: Image.network(
+                      "$imageName.$imageExtension",
+                      width: 48,
+                      height: 48,
+                    ),
                   ),
                 ),
-                onTap: () {},
+                onTap: () => _redirectToDetail(
+                    name, description, "$imageName.$imageExtension"),
               )
             ],
           );
@@ -79,17 +86,11 @@ class _MarvelListUIState extends State<MarvelListUI> {
     );
   }
 
-/*
-  void _onTapItem(BuildContext context, Results results) {
-    String desc = '';
-
-    if (results.description.isEmpty) {
-      desc = 'Sin descripción';
-    } else {
-      desc = results.description;
-    }
-
-    Scaffold.of(context).showSnackBar(new SnackBar(content: new Text(desc)));
+  void _redirectToDetail(String name, String description, String image) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => MarvelDetailUI(name, description, image)),
+    );
   }
-  */
 }
