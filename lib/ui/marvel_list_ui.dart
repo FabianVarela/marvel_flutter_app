@@ -36,9 +36,10 @@ class _MarvelListUIState extends State<MarvelListUI> {
             if (snapshot.hasData)
               return setListData(snapshot.data.data.results);
 
-            if (snapshot.hasError) {
-              return Center(child: Text(snapshot.error));
-            }
+            if (snapshot.hasError)
+              return Center(
+                child: Text(snapshot.error),
+              );
 
             return Text('Marvel Superheroes');
           },
