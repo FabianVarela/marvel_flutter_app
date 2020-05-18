@@ -2,31 +2,41 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:http/http.dart';
 import 'package:marvel_flutter_app/model/marvel_model.dart';
 import 'package:crypto/crypto.dart';
 
 class MarvelClient {
-  final client = Client();
+  final Client _client = Client();
+
+  static const String _uri = 'gateway.marvel.com';
+  static const String _publicKey = '83befde037c95e62a7aeaf43d5a4b59b';
+  static const String _privateKey = 'dbee5457fd20d705691d8bae586229966cbbc759';
 
   Future<MarvelModel> fetchHeroesData() async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    GlobalConfiguration configuration = GlobalConfiguration();
+    final int timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    final publicKey = configuration.getString("publicKey");
-    final privateKey = configuration.getString("privateKey");
+    final List<int> bytes = utf8.encode('$timestamp$_privateKey$_publicKey');
+    final String hash = hex.encode(md5.convert(bytes).bytes);
 
-    var bytes = utf8.encode("$timestamp$privateKey$publicKey");
-    var hash = hex.encode(md5.convert(bytes).bytes);
+    final Uri uri = Uri(
+      scheme: 'http',
+      host: _uri,
+      path: '/v1/public/characters',
+      queryParameters: <String, dynamic>{
+        'limit': 100,
+        'ts': timestamp,
+        'apiKey': _publicKey,
+        'hash': hash,
+      },
+    );
 
-    final response = await client.get(
-        "http://gateway.marvel.com/v1/public/characters?limit=100&ts=$timestamp&apikey=$publicKey&hash=$hash");
+    final Response response = await _client.get(uri);
 
     if (response.statusCode == 200) {
       return MarvelModel.fromJson(json.decode(response.body));
     } else {
-      throw Exception("An error has ocurred to fetch data");
+      throw Exception('An error has ocurred to fetch data');
     }
   }
 }

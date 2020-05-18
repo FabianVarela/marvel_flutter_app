@@ -3,9 +3,8 @@ class MarvelModel {
 
   MarvelModel({this.data});
 
-  factory MarvelModel.fromJson(Map<String, dynamic> json) {
-    return MarvelModel(data: Data.fromJson(json['data']));
-  }
+  factory MarvelModel.fromJson(Map<String, dynamic> json) =>
+      MarvelModel(data: Data.fromJson(json['data']));
 }
 
 class Data {
@@ -13,12 +12,11 @@ class Data {
 
   Data({this.results});
 
-  factory Data.fromJson(Map<String, dynamic> json) {
-    var list = json['results'] as List;
-    List<Results> results = list.map((item) => Results.fromJson(item)).toList();
-    
-    return Data(results: results);
-  }
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+        results: (json['results'] as List<dynamic>)
+            .map((dynamic item) => Results.fromJson(item))
+            .toList(),
+      );
 }
 
 class Results {
@@ -28,17 +26,21 @@ class Results {
   final Thumbnail thumbnail;
   final String resourceURI;
 
-  Results(
-      {this.id, this.name, this.description, this.thumbnail, this.resourceURI});
+  Results({
+    this.id,
+    this.name,
+    this.description,
+    this.thumbnail,
+    this.resourceURI,
+  });
 
-  factory Results.fromJson(Map<String, dynamic> json) {
-    return Results(
+  factory Results.fromJson(Map<String, dynamic> json) => Results(
         id: json['id'],
         name: json['name'],
         description: json['description'],
         thumbnail: Thumbnail.fromJson(json['thumbnail']),
-        resourceURI: json['resourceURI']);
-  }
+        resourceURI: json['resourceURI'],
+      );
 }
 
 class Thumbnail {
@@ -47,7 +49,8 @@ class Thumbnail {
 
   Thumbnail({this.path, this.extension});
 
-  factory Thumbnail.fromJson(Map<String, dynamic> json) {
-    return Thumbnail(path: json['path'], extension: json['extension']);
-  }
+  factory Thumbnail.fromJson(Map<String, dynamic> json) => Thumbnail(
+        path: json['path'],
+        extension: json['extension'],
+      );
 }
