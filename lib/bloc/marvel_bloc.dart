@@ -1,31 +1,31 @@
 import 'dart:async';
 
 import 'package:marvel_flutter_app/model/marvel_model.dart';
-import 'package:marvel_flutter_app/repository/marvel_repository.dart';
+import 'package:marvel_flutter_app/client/marvel_client.dart';
 
 class MarvelBloc {
-  final _repository = MarvelRepository();
+  final MarvelClient _marvelClient = MarvelClient();
 
   /// Init controllers
-  final _dataStream = StreamController<MarvelModel>();
-  final _isLoading = StreamController<bool>();
+  final StreamController<MarvelModel> _dataStream =
+      StreamController<MarvelModel>();
+  final StreamController<bool> _isLoading = StreamController<bool>();
 
   /// Expose data from stream
   Stream<MarvelModel> get dataStream => _dataStream.stream;
 
   Stream<bool> get isLoading => _isLoading.stream;
 
-  /// Functions
   void fetchData() async {
     _isLoading.sink.add(true);
 
     try {
-      var data = await _repository.fetchHeroesData();
+      final MarvelModel model = await _marvelClient.fetchHeroesData();
 
-      if (data != null)
-        _dataStream.sink.add(data);
+      if (model != null)
+        _dataStream.sink.add(model);
       else
-        _dataStream.sink.addError("No se encontraron registros");
+        _dataStream.sink.addError('No se encontraron registros');
     } catch (ex) {
       _dataStream.sink.addError(ex);
     }

@@ -9,7 +9,7 @@ class MarvelListUI extends StatefulWidget {
 }
 
 class _MarvelListUIState extends State<MarvelListUI> {
-  final bloc = MarvelBloc();
+  final MarvelBloc bloc = MarvelBloc();
 
   @override
   void initState() {
@@ -27,18 +27,20 @@ class _MarvelListUIState extends State<MarvelListUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Marvel Superheroes"),
+        title: Text('Marvel Superheroes'),
       ),
       body: Center(
         child: StreamBuilder<MarvelModel>(
           stream: bloc.dataStream,
-          builder: (context, snapshot) {
+          builder: (_, AsyncSnapshot<MarvelModel> snapshot) {
             if (snapshot.hasData)
               return setListData(snapshot.data.data.results);
 
-            if (snapshot.hasError) return Center(child: Text(snapshot.error));
+            if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error));
+            }
 
-            return Text("Marvel Superheroes");
+            return Text('Marvel Superheroes');
           },
         ),
       ),
@@ -50,34 +52,37 @@ class _MarvelListUIState extends State<MarvelListUI> {
       child: ListView.builder(
         itemCount: results.length,
         padding: EdgeInsets.all(15),
-        itemBuilder: (context, position) {
-          var name = results[position].name;
-          var description = results[position].description;
-
-          var imageName = results[position].thumbnail.path;
-          var imageExtension = results[position].thumbnail.extension;
-
+        itemBuilder: (_, int index) {
+          final Results item = results[index];
+          final String imageUrl =
+              '${item.thumbnail.path}.${item.thumbnail.extension}';
           return Column(
             children: <Widget>[
               Divider(height: 5),
               ListTile(
                 title: Text(
-                  "$name",
-                  style: TextStyle(fontSize: 20, color: Colors.lightBlueAccent),
+                  '${item.name}',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.lightBlueAccent,
+                  ),
                 ),
                 leading: Hero(
-                  tag: "$name",
+                  tag: '${item.name}',
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(50.0),
                     child: Image.network(
-                      "$imageName.$imageExtension",
+                      '$imageUrl',
                       width: 48,
                       height: 48,
                     ),
                   ),
                 ),
                 onTap: () => _redirectToDetail(
-                    name, description, "$imageName.$imageExtension"),
+                  item.name,
+                  item.description,
+                  '$imageUrl',
+                ),
               )
             ],
           );
@@ -89,8 +94,9 @@ class _MarvelListUIState extends State<MarvelListUI> {
   void _redirectToDetail(String name, String description, String image) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => MarvelDetailUI(name, description, image)),
+      MaterialPageRoute<dynamic>(
+        builder: (_) => MarvelDetailUI(name, description, image),
+      ),
     );
   }
 }

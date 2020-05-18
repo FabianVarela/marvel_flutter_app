@@ -18,16 +18,19 @@ class MarvelDetailUI extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Hero(
-              tag: "$name",
-              child: Image.network("$imageURL",
-                  width: double.infinity, height: 300),
+              tag: '$name',
+              child: Image.network(
+                '$imageURL',
+                width: double.infinity,
+                height: 300,
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(20),
               child: Column(
                 children: <Widget>[
                   Text(
-                    (description != "") ? description : "Has no description",
+                    description != '' ? description : 'Description not found',
                     style: TextStyle(
                       fontSize: 25,
                       color: Colors.black,
