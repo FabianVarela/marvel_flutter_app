@@ -27,7 +27,7 @@ class MarvelBloc {
       else
         _dataStream.sink.addError('No se encontraron registros');
     } catch (ex) {
-      _dataStream.sink.addError(ex);
+      _dataStream.sink.addError(ex.toString());
     }
 
     _isLoading.sink.add(false);
