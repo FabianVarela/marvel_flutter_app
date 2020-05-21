@@ -14,7 +14,7 @@ class MarvelClient {
   final String _publicKey = '83befde037c95e62a7aeaf43d5a4b59b';
   final String _privateKey = 'dbee5457fd20d705691d8bae586229966cbbc759';
 
-  Future<MarvelModel> fetchHeroesData() async {
+  Future<MarvelModel> fetchHeroesData(String text) async {
     final int timestamp = DateTime.now().millisecondsSinceEpoch;
 
     final Uint8List bytes = utf8.encode('$timestamp$_privateKey$_publicKey');
@@ -24,6 +24,7 @@ class MarvelClient {
       _uri,
       '/v1/public/characters',
       <String, String>{
+        'nameStartsWith': text,
         'limit': 100.toString(),
         'ts': '$timestamp',
         'apikey': _publicKey,
