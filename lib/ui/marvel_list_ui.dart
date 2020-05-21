@@ -9,17 +9,12 @@ class MarvelListUI extends StatefulWidget {
 }
 
 class _MarvelListUIState extends State<MarvelListUI> {
-  final MarvelBloc bloc = MarvelBloc();
-
-  @override
-  void initState() {
-    super.initState();
-    bloc.fetchData();
-  }
+  final TextEditingController _heroController = TextEditingController();
+  final MarvelBloc _marvelBloc = MarvelBloc();
 
   @override
   void dispose() {
-    bloc.dispose();
+    _marvelBloc.dispose();
     super.dispose();
   }
 
@@ -29,75 +24,188 @@ class _MarvelListUIState extends State<MarvelListUI> {
       appBar: AppBar(
         title: Text('Marvel Superheroes'),
       ),
-      body: Center(
-        child: StreamBuilder<MarvelModel>(
-          stream: bloc.dataStream,
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: _setTextField(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: _setSearchButton(),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: MediaQuery.of(context).size.height * .8,
+            child: _setResultList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _setTextField() {
+    return StreamBuilder<String>(
+      stream: _marvelBloc.heroSearch,
+      builder: (_, AsyncSnapshot<String> snapshot) {
+        return TextField(
+          controller: _heroController,
+          onChanged: _marvelBloc.changeHero,
+        );
+      },
+    );
+  }
+
+  Widget _setSearchButton() {
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: _marvelBloc.isValidData,
+      builder: (_, AsyncSnapshot<bool> isValidSnapshot) {
+        return RaisedButton(
+          onPressed: isValidSnapshot.hasData && isValidSnapshot.data
+              ? _marvelBloc.fetchData
+              : null,
+          shape: CircleBorder(),
+          padding: EdgeInsets.all(15),
+          child: Icon(Icons.search, color: Colors.white, size: 20),
+        );
+      },
+    );
+  }
+
+  Widget _setResultList() {
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: _marvelBloc.isLoading,
+      builder: (_, AsyncSnapshot<bool> isLoadingSnapshot) {
+        return StreamBuilder<MarvelModel>(
+          stream: _marvelBloc.dataStream,
           builder: (_, AsyncSnapshot<MarvelModel> snapshot) {
-            if (snapshot.hasData)
-              return setListData(snapshot.data.data.results);
-
-            if (snapshot.hasError)
+            if (isLoadingSnapshot.data) {
               return Center(
-                child: Text(snapshot.error),
+                child: CircularProgressIndicator(),
               );
+            }
 
-            return Text('Marvel Superheroes');
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                return MarvelListAnimation(
+                  children: snapshot.data.data.results.map(_setItem).toList(),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(snapshot.error),
+                );
+              }
+            }
+
+            return Center(
+              child: Text('Search your favorite superhero'),
+            );
           },
+        );
+      },
+    );
+  }
+
+  Widget _setItem(Results item) {
+    final String image = '${item.thumbnail.path}.${item.thumbnail.extension}';
+
+    return ListTile(
+      title: Text(
+        '${item.name}',
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.lightBlueAccent,
         ),
       ),
-    );
-  }
-
-  Widget setListData(List<Results> results) {
-    return Container(
-      child: ListView.builder(
-        itemCount: results.length,
-        padding: EdgeInsets.all(15),
-        itemBuilder: (_, int index) {
-          final Results item = results[index];
-          final String imageUrl =
-              '${item.thumbnail.path}.${item.thumbnail.extension}';
-          return Column(
-            children: <Widget>[
-              Divider(height: 5),
-              ListTile(
-                title: Text(
-                  '${item.name}',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.lightBlueAccent,
-                  ),
-                ),
-                leading: Hero(
-                  tag: '${item.name}',
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50.0),
-                    child: Image.network(
-                      '$imageUrl',
-                      width: 48,
-                      height: 48,
-                    ),
-                  ),
-                ),
-                onTap: () => _redirectToDetail(
-                  item.name,
-                  item.description,
-                  '$imageUrl',
-                ),
-              )
-            ],
-          );
-        },
+      leading: Hero(
+        tag: '${item.name}',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: Image.network(
+            '$image',
+            width: 48,
+            height: 48,
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
+      onTap: () => _redirectToDetail(item, image),
     );
   }
 
-  void _redirectToDetail(String name, String description, String image) {
+  void _redirectToDetail(Results item, String image) {
     Navigator.push(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (_) => MarvelDetailUI(name, description, image),
+        builder: (_) => MarvelDetailUI(item.name, item.description, image),
       ),
+    );
+  }
+}
+
+class MarvelListAnimation extends StatelessWidget {
+  MarvelListAnimation({@required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: children.length,
+      itemBuilder: (_, int index) {
+        return ListItem(
+          child: children[index],
+          position: index,
+          duration: Duration(milliseconds: 300 + index),
+          // set duration
+        );
+      },
+    );
+  }
+}
+
+class ListItem extends StatefulWidget {
+  ListItem({this.position, this.child, this.duration});
+
+  final int position;
+  final Widget child;
+  final Duration duration;
+
+  @override
+  _ListItemState createState() => _ListItemState();
+}
+
+class _ListItemState extends State<ListItem> with TickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<Offset> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _animation = Tween<Offset>(begin: Offset(-1.0, 0.0), end: Offset.zero)
+        .animate(_controller);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Future<void>.delayed(widget.duration, () => _controller.forward());
+
+    return SlideTransition(
+      position: _animation,
+      child: widget.child,
     );
   }
 }
