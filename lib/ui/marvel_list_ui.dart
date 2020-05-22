@@ -21,6 +21,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Marvel Superheroes'),
       ),
