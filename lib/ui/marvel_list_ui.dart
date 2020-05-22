@@ -118,7 +118,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
     );
   }
 
-  Widget _setItem(Results item) {
+  Widget _setItem(CharacterResult item) {
     final String image = '${item.thumbnail.path}.${item.thumbnail.extension}';
 
     return ListTile(
@@ -145,7 +145,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
     );
   }
 
-  void _redirectToDetail(Results item, String image) {
+  void _redirectToDetail(CharacterResult item, String image) {
     Navigator.push(
       context,
       MaterialPageRoute<dynamic>(

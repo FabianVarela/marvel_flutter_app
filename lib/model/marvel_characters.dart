@@ -1,32 +1,25 @@
 class MarvelCharacters {
-  final Data data;
-
   MarvelCharacters({this.data});
 
-  factory MarvelCharacters.fromJson(Map<String, dynamic> json) =>
-      MarvelCharacters(data: Data.fromJson(json['data']));
+  final CharacterData data;
+
+  MarvelCharacters.fromJson(Map<String, dynamic> json)
+      : data = CharacterData.fromJson(json['data']);
 }
 
-class Data {
-  final List<Results> results;
+class CharacterData {
+  CharacterData({this.results});
 
-  Data({this.results});
+  final List<CharacterResult> results;
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        results: (json['results'] as List<dynamic>)
-            .map((dynamic item) => Results.fromJson(item))
-            .toList(),
-      );
+  CharacterData.fromJson(Map<String, dynamic> json)
+      : results = (json['results'] as List<dynamic>)
+            .map((dynamic item) => CharacterResult.fromJson(item))
+            .toList();
 }
 
-class Results {
-  final int id;
-  final String name;
-  final String description;
-  final Thumbnail thumbnail;
-  final String resourceURI;
-
-  Results({
+class CharacterResult {
+  CharacterResult({
     this.id,
     this.name,
     this.description,
@@ -34,23 +27,27 @@ class Results {
     this.resourceURI,
   });
 
-  factory Results.fromJson(Map<String, dynamic> json) => Results(
-        id: json['id'],
-        name: json['name'],
-        description: json['description'],
-        thumbnail: Thumbnail.fromJson(json['thumbnail']),
-        resourceURI: json['resourceURI'],
-      );
+  final int id;
+  final String name;
+  final String description;
+  final CharacterThumbnail thumbnail;
+  final String resourceURI;
+
+  CharacterResult.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        name = json['name'],
+        description = json['description'],
+        thumbnail = CharacterThumbnail.fromJson(json['thumbnail']),
+        resourceURI = json['resourceURI'];
 }
 
-class Thumbnail {
+class CharacterThumbnail {
+  CharacterThumbnail({this.path, this.extension});
+
   final String path;
   final String extension;
 
-  Thumbnail({this.path, this.extension});
-
-  factory Thumbnail.fromJson(Map<String, dynamic> json) => Thumbnail(
-        path: json['path'],
-        extension: json['extension'],
-      );
+  CharacterThumbnail.fromJson(Map<String, dynamic> json)
+      : path = json['path'],
+        extension = json['extension'];
 }
