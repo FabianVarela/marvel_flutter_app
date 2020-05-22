@@ -1,10 +1,10 @@
-class MarvelModel {
+class MarvelCharacters {
   final Data data;
 
-  MarvelModel({this.data});
+  MarvelCharacters({this.data});
 
-  factory MarvelModel.fromJson(Map<String, dynamic> json) =>
-      MarvelModel(data: Data.fromJson(json['data']));
+  factory MarvelCharacters.fromJson(Map<String, dynamic> json) =>
+      MarvelCharacters(data: Data.fromJson(json['data']));
 }
 
 class Data {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:marvel_flutter_app/model/marvel_model.dart';
+import 'package:marvel_flutter_app/model/marvel_characters.dart';
 import 'package:marvel_flutter_app/client/marvel_client.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -10,7 +10,8 @@ class MarvelBloc {
   /// Init controllers
   final BehaviorSubject<String> _heroSearch = BehaviorSubject<String>();
 
-  final PublishSubject<MarvelModel> _dataStream = PublishSubject<MarvelModel>();
+  final PublishSubject<MarvelCharacters> _dataStream =
+      PublishSubject<MarvelCharacters>();
 
   final PublishSubject<bool> _isLoading = PublishSubject<bool>();
 
@@ -30,7 +31,7 @@ class MarvelBloc {
 
   Stream<bool> get isValidData => heroSearch.map((String value) => true);
 
-  Stream<MarvelModel> get dataStream => _dataStream.stream;
+  Stream<MarvelCharacters> get dataStream => _dataStream.stream;
 
   Stream<bool> get isLoading => _isLoading.stream;
 
@@ -41,7 +42,7 @@ class MarvelBloc {
     _isLoading.sink.add(true);
 
     try {
-      final MarvelModel model =
+      final MarvelCharacters model =
           await _marvelClient.fetchHeroesData(_heroSearch.value);
 
       if (model != null && model.data.results.isNotEmpty)

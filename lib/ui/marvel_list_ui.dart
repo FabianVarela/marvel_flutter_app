@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marvel_flutter_app/bloc/marvel_bloc.dart';
-import 'package:marvel_flutter_app/model/marvel_model.dart';
+import 'package:marvel_flutter_app/model/marvel_characters.dart';
 import 'package:marvel_flutter_app/ui/marvel_detail_ui.dart';
 
 class MarvelListUI extends StatefulWidget {
@@ -86,9 +86,9 @@ class _MarvelListUIState extends State<MarvelListUI> {
       initialData: false,
       stream: _marvelBloc.isLoading,
       builder: (_, AsyncSnapshot<bool> isLoadingSnapshot) {
-        return StreamBuilder<MarvelModel>(
+        return StreamBuilder<MarvelCharacters>(
           stream: _marvelBloc.dataStream,
-          builder: (_, AsyncSnapshot<MarvelModel> snapshot) {
+          builder: (_, AsyncSnapshot<MarvelCharacters> snapshot) {
             if (isLoadingSnapshot.data) {
               return Center(
                 child: CircularProgressIndicator(),
