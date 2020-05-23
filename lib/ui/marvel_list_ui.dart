@@ -71,7 +71,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
       builder: (_, AsyncSnapshot<bool> isValidSnapshot) {
         return RaisedButton(
           onPressed: isValidSnapshot.hasData && isValidSnapshot.data
-              ? _marvelBloc.fetchData
+              ? _marvelBloc.fetchCharacterData
               : null,
           shape: CircleBorder(),
           padding: EdgeInsets.all(15),
@@ -87,7 +87,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
       stream: _marvelBloc.isLoading,
       builder: (_, AsyncSnapshot<bool> isLoadingSnapshot) {
         return StreamBuilder<MarvelCharacters>(
-          stream: _marvelBloc.dataStream,
+          stream: _marvelBloc.marvelCharacterStream,
           builder: (_, AsyncSnapshot<MarvelCharacters> snapshot) {
             if (isLoadingSnapshot.data) {
               return Center(

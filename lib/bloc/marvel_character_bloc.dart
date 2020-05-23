@@ -10,7 +10,7 @@ class MarvelCharacterBloc {
   /// Init controllers
   final BehaviorSubject<String> _heroSearch = BehaviorSubject<String>();
 
-  final PublishSubject<MarvelCharacters> _dataStream =
+  final PublishSubject<MarvelCharacters> _marvelCharacterSubject =
       PublishSubject<MarvelCharacters>();
 
   final PublishSubject<bool> _isLoading = PublishSubject<bool>();
@@ -31,14 +31,15 @@ class MarvelCharacterBloc {
 
   Stream<bool> get isValidData => heroSearch.map((String value) => true);
 
-  Stream<MarvelCharacters> get dataStream => _dataStream.stream;
+  Stream<MarvelCharacters> get marvelCharacterStream =>
+      _marvelCharacterSubject.stream;
 
   Stream<bool> get isLoading => _isLoading.stream;
 
   /// Functions
   Function(String) get changeHero => _heroSearch.sink.add;
 
-  void fetchData() async {
+  void fetchCharacterData() async {
     _isLoading.sink.add(true);
 
     try {
@@ -46,11 +47,11 @@ class MarvelCharacterBloc {
           await _marvelClient.fetchHeroesData(_heroSearch.value);
 
       if (model != null && model.data.results.isNotEmpty)
-        _dataStream.sink.add(model);
+        _marvelCharacterSubject.sink.add(model);
       else
-        _dataStream.sink.addError('No data found');
+        _marvelCharacterSubject.sink.addError('No data found');
     } catch (ex) {
-      _dataStream.sink.addError(ex.toString());
+      _marvelCharacterSubject.sink.addError(ex.toString());
     }
 
     _isLoading.sink.add(false);
@@ -58,7 +59,7 @@ class MarvelCharacterBloc {
 
   void dispose() {
     _heroSearch.close();
-    _dataStream.close();
+    _marvelCharacterSubject.close();
     _isLoading.close();
   }
 }
