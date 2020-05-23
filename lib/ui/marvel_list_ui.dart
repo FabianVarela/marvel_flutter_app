@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marvel_flutter_app/bloc/marvel_bloc.dart';
+import 'package:marvel_flutter_app/bloc/marvel_character_bloc.dart';
 import 'package:marvel_flutter_app/model/marvel_characters.dart';
 import 'package:marvel_flutter_app/ui/marvel_detail_ui.dart';
 
@@ -10,7 +10,7 @@ class MarvelListUI extends StatefulWidget {
 
 class _MarvelListUIState extends State<MarvelListUI> {
   final TextEditingController _heroController = TextEditingController();
-  final MarvelBloc _marvelBloc = MarvelBloc();
+  final MarvelCharacterBloc _marvelBloc = MarvelCharacterBloc();
 
   @override
   void dispose() {

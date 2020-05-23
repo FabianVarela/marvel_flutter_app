@@ -4,7 +4,7 @@ import 'package:marvel_flutter_app/model/marvel_characters.dart';
 import 'package:marvel_flutter_app/client/marvel_client.dart';
 import 'package:rxdart/rxdart.dart';
 
-class MarvelBloc {
+class MarvelCharacterBloc {
   final MarvelClient _marvelClient = MarvelClient();
 
   /// Init controllers
