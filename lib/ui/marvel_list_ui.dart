@@ -10,11 +10,11 @@ class MarvelListUI extends StatefulWidget {
 
 class _MarvelListUIState extends State<MarvelListUI> {
   final TextEditingController _heroController = TextEditingController();
-  final MarvelCharacterBloc _marvelBloc = MarvelCharacterBloc();
+  final MarvelCharacterBloc _marvelCharacterBloc = MarvelCharacterBloc();
 
   @override
   void dispose() {
-    _marvelBloc.dispose();
+    _marvelCharacterBloc.dispose();
     super.dispose();
   }
 
@@ -54,11 +54,11 @@ class _MarvelListUIState extends State<MarvelListUI> {
 
   Widget _setTextField() {
     return StreamBuilder<String>(
-      stream: _marvelBloc.heroSearch,
+      stream: _marvelCharacterBloc.heroSearch,
       builder: (_, AsyncSnapshot<String> snapshot) {
         return TextField(
           controller: _heroController,
-          onChanged: _marvelBloc.changeHero,
+          onChanged: _marvelCharacterBloc.changeHero,
         );
       },
     );
@@ -67,11 +67,11 @@ class _MarvelListUIState extends State<MarvelListUI> {
   Widget _setSearchButton() {
     return StreamBuilder<bool>(
       initialData: false,
-      stream: _marvelBloc.isValidData,
+      stream: _marvelCharacterBloc.isValidData,
       builder: (_, AsyncSnapshot<bool> isValidSnapshot) {
         return RaisedButton(
           onPressed: isValidSnapshot.hasData && isValidSnapshot.data
-              ? _marvelBloc.fetchCharacterData
+              ? _marvelCharacterBloc.fetchCharacterData
               : null,
           shape: CircleBorder(),
           padding: EdgeInsets.all(15),
@@ -84,27 +84,29 @@ class _MarvelListUIState extends State<MarvelListUI> {
   Widget _setResultList() {
     return StreamBuilder<bool>(
       initialData: false,
-      stream: _marvelBloc.isLoading,
+      stream: _marvelCharacterBloc.isLoading,
       builder: (_, AsyncSnapshot<bool> isLoadingSnapshot) {
         return StreamBuilder<MarvelCharacters>(
-          stream: _marvelBloc.marvelCharacterStream,
-          builder: (_, AsyncSnapshot<MarvelCharacters> snapshot) {
+          stream: _marvelCharacterBloc.marvelCharacterStream,
+          builder: (_, AsyncSnapshot<MarvelCharacters> charactersSnapshot) {
             if (isLoadingSnapshot.data) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
 
-            if (snapshot.connectionState == ConnectionState.active) {
-              if (snapshot.hasData) {
+            if (charactersSnapshot.connectionState == ConnectionState.active) {
+              if (charactersSnapshot.hasData) {
                 return MarvelListAnimation(
-                  children: snapshot.data.data.results.map(_setItem).toList(),
+                  children: charactersSnapshot.data.data.results
+                      .map(_setItem)
+                      .toList(),
                 );
               }
 
-              if (snapshot.hasError) {
+              if (charactersSnapshot.hasError) {
                 return Center(
-                  child: Text(snapshot.error),
+                  child: Text(charactersSnapshot.error),
                 );
               }
             }
@@ -149,7 +151,12 @@ class _MarvelListUIState extends State<MarvelListUI> {
     Navigator.push(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (_) => MarvelDetailUI(item.name, item.description, image),
+        builder: (_) => MarvelDetailUI(
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          imageURL: image,
+        ),
       ),
     );
   }
