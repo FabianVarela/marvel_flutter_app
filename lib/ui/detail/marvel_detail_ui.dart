@@ -60,7 +60,7 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
                 ),
               ),
               Container(
-                height: MediaQuery.of(context).size.height * .65,
+                height: MediaQuery.of(context).size.height * .62,
                 child: _setBody(),
               ),
             ],
@@ -162,7 +162,7 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
           ],
         ),
         Container(
-          height: MediaQuery.of(context).size.height * .56,
+          height: MediaQuery.of(context).size.height * .53,
           child: TabBarView(
             controller: _tabController,
             children: <Widget>[
