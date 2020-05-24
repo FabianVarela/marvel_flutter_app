@@ -70,7 +70,7 @@ class ComicPrice {
 
   ComicPrice.fromJson(Map<String, dynamic> json)
       : price = (json['price']).toDouble(),
-        type = json['type'] != null
+        type = json['type'] == null
             ? PriceType.NONE
             : json['type'] == 'printPrice'
                 ? PriceType.PRINT
