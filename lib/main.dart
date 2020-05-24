@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:marvel_flutter_app/ui/marvel_list_ui.dart';
+import 'package:marvel_flutter_app/ui/list/marvel_list_ui.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
