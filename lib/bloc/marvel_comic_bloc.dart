@@ -25,7 +25,7 @@ class MarvelComicBloc {
       if (model != null && model.data.results.isNotEmpty)
         _marvelComicSubject.sink.add(model);
       else
-        _marvelComicSubject.sink.addError('No data found');
+        _marvelComicSubject.sink.addError('No comics found');
     } catch (ex) {
       _marvelComicSubject.sink.addError(ex.toString());
     }

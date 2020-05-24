@@ -49,7 +49,7 @@ class MarvelCharacterBloc {
       if (model != null && model.data.results.isNotEmpty)
         _marvelCharacterSubject.sink.add(model);
       else
-        _marvelCharacterSubject.sink.addError('No data found');
+        _marvelCharacterSubject.sink.addError('No superheroes found');
     } catch (ex) {
       _marvelCharacterSubject.sink.addError(ex.toString());
     }
