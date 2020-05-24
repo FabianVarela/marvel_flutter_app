@@ -23,41 +23,33 @@ class ComicData {
 class ComicResult {
   ComicResult(
     this.id,
-    this.digitalId,
     this.title,
     this.description,
     this.format,
     this.pages,
-    this.prices,
     this.mainImage,
-    this.secondImages,
+    this.prices,
     this.creators,
   );
 
   final int id;
-  final int digitalId;
   final String title;
   final String description;
   final String format;
   final int pages;
-  final List<ComicPrice> prices;
   final ComicThumbnail mainImage;
-  final List<ComicThumbnail> secondImages;
+  final List<ComicPrice> prices;
   final List<ComicCreators> creators;
 
   ComicResult.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        digitalId = json['digitalId'],
         title = json['title'],
         description = json['description'],
         format = json['format'],
         pages = json['pageCount'],
+        mainImage = ComicThumbnail.fromJson(json['thumbnail']),
         prices = (json['prices'] as List<dynamic>)
             .map((dynamic item) => ComicPrice.fromJson(item))
-            .toList(),
-        mainImage = ComicThumbnail.fromJson(json['thumbnail']),
-        secondImages = (json['images'] as List<dynamic>)
-            .map((dynamic item) => ComicThumbnail.fromJson(item))
             .toList(),
         creators = (json['creators']['items'] as List<dynamic>)
             .map((dynamic item) => ComicCreators.fromJson(item))
@@ -77,12 +69,12 @@ class ComicPrice {
   final double price;
 
   ComicPrice.fromJson(Map<String, dynamic> json)
-      : type = json['type'] != null
+      : price = (json['price']).toDouble(),
+        type = json['type'] != null
             ? PriceType.NONE
             : json['type'] == 'printPrice'
                 ? PriceType.PRINT
-                : PriceType.DIGITAL,
-        price = json['price'];
+                : PriceType.DIGITAL;
 }
 
 class ComicThumbnail {
