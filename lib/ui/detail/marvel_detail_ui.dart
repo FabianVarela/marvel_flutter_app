@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:marvel_flutter_app/bloc/marvel_comic_bloc.dart';
+import 'package:marvel_flutter_app/bloc/marvel_favorite_bloc.dart';
+import 'package:marvel_flutter_app/model/marvel_characters.dart';
 import 'package:marvel_flutter_app/model/marvel_comic.dart';
+import 'package:marvel_flutter_app/redux/state/app_state.dart';
 import 'package:marvel_flutter_app/ui/detail/comic_list_item.dart';
+import 'package:redux/redux.dart';
 
 class MarvelDetailUI extends StatefulWidget {
-  MarvelDetailUI({
-    this.id,
-    this.name,
-    this.description,
-    this.imageURL,
-  });
+  MarvelDetailUI({this.character});
 
-  final int id;
-  final String name;
-  final String description;
-  final String imageURL;
+  final CharacterResult character;
 
   @override
   _MarvelDetailUIState createState() => _MarvelDetailUIState();
@@ -23,37 +20,37 @@ class MarvelDetailUI extends StatefulWidget {
 
 class _MarvelDetailUIState extends State<MarvelDetailUI>
     with TickerProviderStateMixin {
-  final MarvelComicBloc _marvelComicBloc = MarvelComicBloc();
-
+  MarvelComicBloc _marvelComicBloc = MarvelComicBloc();
   TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    Future<void>.delayed(Duration(milliseconds: 500),
-        () => _marvelComicBloc.fetchComicData(widget.id.toString()));
+    _marvelComicBloc.fetchComicData(widget.character.id.toString());
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _marvelComicBloc.dispose();
     super.dispose();
   }
 
-  /// TODO: Adding favorite with redux
-
   @override
   Widget build(BuildContext context) {
+    final String imagePath = widget.character.thumbnail.path;
+    final String imageExtension = widget.character.thumbnail.extension;
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
           Column(
             children: <Widget>[
               Hero(
-                tag: '${widget.id}',
+                tag: '${widget.character.id}',
                 child: Image.network(
-                  '${widget.imageURL}',
+                  '$imagePath.$imageExtension',
                   width: double.infinity,
                   height: 300,
                   fit: BoxFit.cover,
@@ -65,43 +62,65 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
               ),
             ],
           ),
-          SafeArea(
-            bottom: false,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    widget.name,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => _marvelComicBloc.addToFavourites(''),
-                  icon: Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              ],
-            ),
-          )
+          _setHeader(),
         ],
       ),
+    );
+  }
+
+  Widget _setHeader() {
+    return SafeArea(
+      bottom: false,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              widget.character.name,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          _setFavoriteIconButton()
+        ],
+      ),
+    );
+  }
+
+  Widget _setFavoriteIconButton() {
+    return StoreConnector<AppState, MarvelFavoriteBloc>(
+      distinct: true,
+      converter: (Store<AppState> store) => MarvelFavoriteBloc(store),
+      builder: (_, MarvelFavoriteBloc bloc) {
+        final bool isFavorite = bloc.isFavorite(widget.character.id);
+
+        return IconButton(
+          onPressed: () {
+            if (isFavorite) {
+              bloc.removeToFavorites(widget.character);
+            } else {
+              bloc.addToFavorites(widget.character);
+            }
+          },
+          icon: Icon(
+            isFavorite ? Icons.favorite : Icons.favorite_border,
+            color: isFavorite ? Colors.red : Colors.white,
+            size: 30,
+          ),
+        );
+      },
     );
   }
 
@@ -121,7 +140,7 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
 
             if (comicSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: Text('Loading ${widget.name}\'s comics'),
+                child: Text('Loading ${widget.character.name}\'s comics'),
               );
             }
 
@@ -166,8 +185,10 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
           child: TabBarView(
             controller: _tabController,
             children: <Widget>[
-              if (widget.description.trim().isNotEmpty) _setTextDescription(),
-              if (widget.description.trim().isEmpty) _setEmptyDescriptionText(),
+              if (widget.character.description.trim().isNotEmpty)
+                _setTextDescription(),
+              if (widget.character.description.trim().isEmpty)
+                _setEmptyDescriptionText(),
               Padding(
                 padding: EdgeInsets.symmetric(
                   vertical: 5,
@@ -206,7 +227,7 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
 
     return Center(
       child: Text(
-        'Comics of ${widget.name} not found',
+        'Comics of ${widget.character.name} not found',
         style: TextStyle(
           fontSize: 25,
           fontWeight: FontWeight.w300,
@@ -223,7 +244,7 @@ class _MarvelDetailUIState extends State<MarvelDetailUI>
           horizontal: 16,
         ),
         child: HtmlWidget(
-          widget.description,
+          widget.character.description,
           textStyle: TextStyle(
             fontSize: 22,
             color: Colors.black,
