@@ -39,6 +39,16 @@ class CharacterResult {
         description = json['description'],
         thumbnail = CharacterThumbnail.fromJson(json['thumbnail']),
         resourceURI = json['resourceURI'];
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': this.id,
+      'name': this.name,
+      'description': this.description,
+      'thumbnail': this.thumbnail,
+      'resourceURI': this.resourceURI,
+    };
+  }
 }
 
 class CharacterThumbnail {
