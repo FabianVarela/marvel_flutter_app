@@ -181,12 +181,7 @@ class _MarvelListUIState extends State<MarvelListUI> {
     Navigator.push(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (_) => MarvelDetailUI(
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          imageURL: image,
-        ),
+        builder: (_) => MarvelDetailUI(character: item),
       ),
     );
   }
