@@ -33,10 +33,6 @@ class MarvelComicBloc {
     _isLoading.sink.add(false);
   }
 
-  void addToFavourites(dynamic hero) {
-
-  }
-
   void dispose() {
     _marvelComicSubject.close();
     _isLoading.close();
